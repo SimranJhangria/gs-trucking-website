@@ -394,6 +394,36 @@
         }
 
         /* ═══════════════════════════════════════
+
+<!-- ═══ FLEET GALLERY ═══ -->
+<section id="fleet" class="fleet">
+    <div class="fleet__sticky">
+
+        <div class="fleet__header">
+            <div class="fleet__eyebrow">
+                <span class="fleet__eyebrow-line"></span>
+                <span class="fleet__eyebrow-text">Our Fleet</span>
+            </div>
+            <span class="fleet__counter">
+                <span class="fleet__counter-current">01</span>
+                <span> / 03</span>
+            </span>
+        </div>
+
+        <div class="fleet__stack">
+            <img class="fleet__card" src="fleet-1.jpg" alt="GS Trucking — mountain highway">
+            <img class="fleet__card" src="fleet-2.jpg" alt="GS Trucking — loading dock delivery">
+            <img class="fleet__card" src="fleet-3.jpg" alt="GS Trucking — winter night highway">
+        </div>
+
+        <div class="fleet__scroll-hint" aria-hidden="true">
+            <span class="fleet__scroll-hint-line"></span>
+            <span class="fleet__scroll-hint-text">Scroll</span>
+        </div>
+
+    </div>
+</section>
+
            ABOUT SECTION — Redesign
         ═══════════════════════════════════════ */
         .about {
@@ -1329,7 +1359,115 @@
             .contact__header, .contact__detail-group,
             .contact__form { transition: none; opacity: 1; transform: none; }
         }
+
+        /* ─── Fleet Gallery ─── */
+        .fleet {
+            background: oklch(6% 0.010 20);
+        }
+        .fleet__sticky {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: clamp(80px, 9vw, 120px) clamp(24px, 4vw, 48px) clamp(24px, 4vw, 48px);
+        }
+        .fleet__header {
+            position: absolute;
+            top: clamp(24px, 3vw, 40px);
+            left: clamp(36px, 5vw, 72px);
+            right: clamp(36px, 5vw, 72px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+        }
+        .fleet__eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .fleet__eyebrow-line {
+            display: block;
+            width: 28px; height: 1px;
+            background: var(--red);
+            flex-shrink: 0;
+        }
+        .fleet__eyebrow-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(9px, 0.68vw, 10px);
+            font-weight: 500;
+            letter-spacing: 0.26em;
+            text-transform: uppercase;
+            color: oklch(60% 0.007 80);
+        }
+        .fleet__counter {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(9px, 0.68vw, 10px);
+            font-weight: 500;
+            letter-spacing: 0.16em;
+            color: oklch(38% 0.007 80);
+        }
+        .fleet__counter-current {
+            color: oklch(72% 0.007 80);
+            transition: color 200ms ease;
+        }
+        .fleet__stack {
+            position: relative;
+            width: 100%;
+            max-width: 860px;
+            height: 68vh;
+            max-height: 620px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 32px 80px oklch(4% 0.008 20 / 0.70);
+        }
+        .fleet__card {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            will-change: transform;
+            transform-origin: center center;
+        }
+        .fleet__scroll-hint {
+            position: absolute;
+            bottom: clamp(20px, 2.5vw, 32px);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.5;
+        }
+        .fleet__scroll-hint-line {
+            width: 1px;
+            height: 32px;
+            background: oklch(60% 0.007 80);
+            animation: scrollHint 1.8s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+        }
+        .fleet__scroll-hint-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: oklch(50% 0.007 80);
+        }
+        @keyframes scrollHint {
+            0%   { transform: scaleY(0); transform-origin: top; opacity: 0; }
+            50%  { transform: scaleY(1); transform-origin: top; opacity: 1; }
+            100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+        }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 </head>
 <body>
 
@@ -1800,6 +1938,60 @@
             links.forEach(function (a) { a.classList.remove('nav__link--active'); });
         }
     }, { passive: true });
+})();
+
+/* Fleet Gallery — sticky scroll cards */
+(function () {
+    var cards    = Array.from(document.querySelectorAll('.fleet__card'));
+    var sticky   = document.querySelector('.fleet__sticky');
+    var counterEl = document.querySelector('.fleet__counter-current');
+    var total    = cards.length;
+
+    if (!cards.length || !sticky || typeof gsap === 'undefined') return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* Initial positions: first card visible, rest below */
+    gsap.set(cards[0], { y: '0%', scale: 1, rotation: 0 });
+    for (var i = 1; i < total; i++) {
+        gsap.set(cards[i], { y: '100%', scale: 1, rotation: 0 });
+    }
+
+    var tl = gsap.timeline({
+        scrollTrigger: {
+            trigger: sticky,
+            start: 'top top',
+            end: '+=' + (window.innerHeight * (total - 1)),
+            pin: true,
+            scrub: 0.5,
+            pinSpacing: true,
+            onUpdate: function (self) {
+                if (!counterEl) return;
+                var idx = Math.min(
+                    Math.floor(self.progress * total),
+                    total - 1
+                );
+                counterEl.textContent = String(idx + 1).padStart(2, '0');
+            }
+        }
+    });
+
+    for (var j = 0; j < total - 1; j++) {
+        /* Current card: shrink + tilt */
+        tl.to(cards[j], {
+            scale: 0.7,
+            rotation: 5,
+            duration: 1,
+            ease: 'none'
+        }, j);
+
+        /* Next card: slide up from below */
+        tl.to(cards[j + 1], {
+            y: '0%',
+            duration: 1,
+            ease: 'none'
+        }, j);
+    }
 })();
 </script>
 
