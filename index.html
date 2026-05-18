@@ -1641,27 +1641,29 @@
             </div>
 
             <!-- Right: contact form -->
-            <form class="contact__form" novalidate>
+            <form class="contact__form" id="contact-form" action="https://api.web3forms.com/submit" method="POST">
+                <input type="hidden" name="access_key" value="cc8c42b4-e513-44d8-b68b-e973bc91ba1d">
+                <input type="hidden" name="subject" value="New enquiry from GS Trucking website">
                 <div class="contact__form-grid">
                     <div class="contact__form-field">
                         <label class="contact__form-label" for="contact-name">Name</label>
-                        <input class="contact__form-input" id="contact-name" type="text" placeholder="Your name" autocomplete="name">
+                        <input class="contact__form-input" id="contact-name" name="name" type="text" placeholder="Your name" autocomplete="name" required>
                     </div>
                     <div class="contact__form-field">
                         <label class="contact__form-label" for="contact-company">Company</label>
-                        <input class="contact__form-input" id="contact-company" type="text" placeholder="Your company" autocomplete="organization">
+                        <input class="contact__form-input" id="contact-company" name="company" type="text" placeholder="Your company" autocomplete="organization">
                     </div>
                     <div class="contact__form-field">
                         <label class="contact__form-label" for="contact-email">Email</label>
-                        <input class="contact__form-input" id="contact-email" type="email" placeholder="you@company.com" autocomplete="email">
+                        <input class="contact__form-input" id="contact-email" name="email" type="email" placeholder="you@company.com" autocomplete="email" required>
                     </div>
                     <div class="contact__form-field">
                         <label class="contact__form-label" for="contact-phone">Phone</label>
-                        <input class="contact__form-input" id="contact-phone" type="tel" placeholder="+1 (___) ___-____" autocomplete="tel">
+                        <input class="contact__form-input" id="contact-phone" name="phone" type="tel" placeholder="+1 (___) ___-____" autocomplete="tel">
                     </div>
                     <div class="contact__form-field full">
                         <label class="contact__form-label" for="contact-message">Message</label>
-                        <textarea class="contact__form-textarea" id="contact-message" placeholder="Tell us about your freight needs..." rows="4"></textarea>
+                        <textarea class="contact__form-textarea" id="contact-message" name="message" placeholder="Tell us about your freight needs..." rows="4" required></textarea>
                     </div>
                 </div>
                 <button class="contact__form-submit" type="submit">
@@ -1813,6 +1815,49 @@
             links.forEach(function (a) { a.classList.remove('nav__link--active'); });
         }
     }, { passive: true });
+})();
+
+/* Contact form — Web3Forms AJAX submit */
+(function () {
+    var form = document.getElementById('contact-form');
+    if (!form) return;
+    var btn  = form.querySelector('.contact__form-submit');
+    var span = btn.querySelector('span:first-child');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+
+        span.textContent = 'Sending…';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+
+        var data = new FormData(form);
+        fetch('https://api.web3forms.com/submit', { method: 'POST', body: data })
+            .then(function (r) { return r.json(); })
+            .then(function (json) {
+                if (json.success) {
+                    span.textContent = 'Message Sent';
+                    btn.style.opacity = '1';
+                    btn.style.background = 'oklch(38% 0.14 150)';
+                    form.reset();
+                    setTimeout(function () {
+                        span.textContent = 'Send Message';
+                        btn.disabled = false;
+                        btn.style.background = '';
+                    }, 4000);
+                } else {
+                    span.textContent = 'Try Again';
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }
+            })
+            .catch(function () {
+                span.textContent = 'Try Again';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            });
+    });
 })();
 
 /* Hero background slideshow */
